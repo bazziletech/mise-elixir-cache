@@ -43,13 +43,11 @@ runs:
       with:
         path: |
           deps
-          _build
+          _build/${{ inputs.mix-env }}/lib
+          _build/${{ inputs.mix-env }}/phoenix-colocated
         key: ${{ runner.os }}-${{ inputs.mix-env }}-erlang-${{ steps.tool-versions.outputs.erlang }}-elixir-${{ steps.tool-versions.outputs.elixir }}-mise-${{ hashFiles('**/mise.toml') }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: |
           ${{ runner.os }}-${{ inputs.mix-env }}-erlang-${{ steps.tool-versions.outputs.erlang }}-elixir-${{ steps.tool-versions.outputs.elixir }}-mise-${{ hashFiles('**/mise.toml') }}-mix-
-          ${{ runner.os }}-${{ inputs.mix-env }}-erlang-${{ steps.tool-versions.outputs.erlang }}-elixir-${{ steps.tool-versions.outputs.elixir }}-mise-
-          ${{ runner.os }}-${{ inputs.mix-env }}-mise-${{ hashFiles('**/mise.toml') }}-mix-
-          ${{ runner.os }}-${{ inputs.mix-env }}-mise-
     # Cache Hex registry and Mix archives to avoid network round-trips to hex.pm
     # Must be restored BEFORE "Clean on retry" which needs Hex to parse mix.exs
     - name: Restore Hex/Mix home cache
