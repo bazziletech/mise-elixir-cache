@@ -14,14 +14,40 @@ branding:
 runs:
   using: "composite"
   steps:
+    - name: Detect Elixir and Erlang versions
+      id: tool-versions
+      shell: bash
+      run: |
+        set -euo pipefail
+
+        version_for() {
+          local tool="$1"
+          local version
+
+          version="$(mise current "$tool" 2>/dev/null || true)"
+          version="${version//$'\r'/}"
+          version="${version//$'\n'/}"
+
+          if [ -z "$version" ]; then
+            version="unknown"
+          fi
+
+          printf '%s' "$version" | tr -cs '[:alnum:]._=+-' '-'
+        }
+
+        echo "erlang=$(version_for erlang)" >> "$GITHUB_OUTPUT"
+        echo "elixir=$(version_for elixir)" >> "$GITHUB_OUTPUT"
+
     - uses: actions/cache@v5
       id: mix-cache
       with:
         path: |
           deps
           _build
-        key: ${{ runner.os }}-${{ inputs.mix-env }}-mise-${{ hashFiles('**/mise.toml') }}-mix-${{ hashFiles('**/mix.lock') }}
+        key: ${{ runner.os }}-${{ inputs.mix-env }}-erlang-${{ steps.tool-versions.outputs.erlang }}-elixir-${{ steps.tool-versions.outputs.elixir }}-mise-${{ hashFiles('**/mise.toml') }}-mix-${{ hashFiles('**/mix.lock') }}
         restore-keys: |
+          ${{ runner.os }}-${{ inputs.mix-env }}-erlang-${{ steps.tool-versions.outputs.erlang }}-elixir-${{ steps.tool-versions.outputs.elixir }}-mise-${{ hashFiles('**/mise.toml') }}-mix-
+          ${{ runner.os }}-${{ inputs.mix-env }}-erlang-${{ steps.tool-versions.outputs.erlang }}-elixir-${{ steps.tool-versions.outputs.elixir }}-mise-
           ${{ runner.os }}-${{ inputs.mix-env }}-mise-${{ hashFiles('**/mise.toml') }}-mix-
           ${{ runner.os }}-${{ inputs.mix-env }}-mise-
     # Cache Hex registry and Mix archives to avoid network round-trips to hex.pm
