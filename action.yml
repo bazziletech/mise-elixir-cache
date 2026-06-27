@@ -38,7 +38,7 @@ runs:
         echo "erlang=$(version_for erlang)" >> "$GITHUB_OUTPUT"
         echo "elixir=$(version_for elixir)" >> "$GITHUB_OUTPUT"
 
-    - uses: actions/cache@v5
+    - uses: actions/cache@v6
       id: mix-cache
       with:
         path: |
@@ -51,7 +51,7 @@ runs:
     # Cache Hex registry and Mix archives to avoid network round-trips to hex.pm
     # Must be restored BEFORE "Clean on retry" which needs Hex to parse mix.exs
     - name: Restore Hex/Mix home cache
-      uses: actions/cache@v5
+      uses: actions/cache@v6
       with:
         path: |
           ~/.hex
